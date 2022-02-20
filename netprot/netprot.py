@@ -13,12 +13,14 @@ class Netprod():
             protocols_lower = [protocol.lower() for protocol in protocols]
             
             # remove 'icmp' and 'any' id any. Will later add them back.
-            for index, protocol in enumerate(protocols_lower):
+            self.icmp_flag = False
+            self.any_flag = False
+            for protocol in protocols_lower:
                 if protocol == 'icmp':
-                    self.icmp_index = index
+                    self.icmp_flag = True
                     protocols_lower.remove(protocol)
                 elif protocol == 'any':
-                    self.icmp_any = index
+                    self.any_flag = True
                     protocols_lower.remove(protocol)
             self.protocols = protocols_lower
         
@@ -61,10 +63,15 @@ class Netprod():
                     if result.group(4) and result.group(7):
                         index = protocol.index(result.group(4))
                         normalized_protocols.append(protocol[:index])
-
-        if normalized_protocols:
-            normalized_protocols.sort()
-        self.protocols = normalized_protocols
+        
+        if self.icmp_flag:
+            normalized_protocols.append('icmp')
+        elif self.any_flag:
+            normalized_protocols.append('any')
+        
+        protocols_upper = [protocol.upper() for protocol in normalized_protocols]
+        protocols_upper.sort()
+        self.protocols = protocols_upper
 
 
     def validate(self):
