@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import re
-from tokenize import group
 
-class Netprod():
+class Netprot():
 
     def __init__(self, protocols, separator='/'):
         # Validate protocols and protocols element data type.
@@ -10,20 +9,10 @@ class Netprod():
             raise TypeError("Protocols must be a list of strings. i.e --> ['TCP/443', 'UDP/53']")
         else:
             # lower all elements of protocol. Will later upper.
-            protocols_lower = [protocol.lower() for protocol in protocols]
+            protocols_lower = [protocol.lower().lstrip().rstrip() for protocol in protocols]
             
-            # remove 'icmp' and 'any' id any. Will later add them back.
-            self.icmp_flag = False
-            self.any_flag = False
-            for protocol in protocols_lower:
-                if protocol == 'icmp':
-                    self.icmp_flag = True
-                    protocols_lower.remove(protocol)
-                elif protocol == 'any':
-                    self.any_flag = True
-                    protocols_lower.remove(protocol)
-            self.protocols = protocols_lower
-        
+        self.protocols = protocols_lower
+
         # Validate separator data type.
         if separator and not isinstance(separator, str):
             raise TypeError("Separator must be of type string. i.e. --> '/'")
@@ -42,11 +31,11 @@ class Netprod():
         normalized_protocols = list()
  
         for protocol in self.protocols:
-            # https://regex101.com/delete/rvPnANeXTjq7zXjIXUyYosny
+            # https://regex101.com/r/DyKeqr/1
             result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
             if result:
                 # replace whatever separator with self.separator
-                normalized_protocols.append(self.protocol.replace(result.group(2), self.separator, 1))
+                protocol = protocol.replace(result.group(2), self.separator, 1)
                 
                 splitted_protocol = protocol.split(self.separator)
                 if len(splitted_protocol) > 1:
@@ -54,24 +43,25 @@ class Netprod():
                     if result.group(4) and result.group(5):
                         try:
                             start = int(result.group(3))
-                            end = int(result.group(5))
+                            end = int(result.group(5)) + 1
                             for port in range(start, end):
                                 normalized_protocols.append(f"{protocol[0:3]}/{port}")
                         except ValueError:
                             continue
                     # Normalize TCP/443-HTTPS --> TCP/443
-                    if result.group(4) and result.group(7):
+                    elif result.group(4) and result.group(6):
                         index = protocol.index(result.group(4))
                         normalized_protocols.append(protocol[:index])
-        
-        if self.icmp_flag:
-            normalized_protocols.append('icmp')
-        elif self.any_flag:
-            normalized_protocols.append('any')
-        
+                    else:
+                        normalized_protocols.append(protocol)
+            # catch 'icmp' and 'any'
+            else:
+                normalized_protocols.append(protocol)                
+ 
         protocols_upper = [protocol.upper() for protocol in normalized_protocols]
         protocols_upper.sort()
-        self.protocols = protocols_upper
+
+        return protocols_upper
 
 
     def validate(self):
@@ -108,5 +98,6 @@ class Netprod():
         pass
 
     def is_udp(self):
+        pass
 
 
