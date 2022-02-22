@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+from utils.utils import cosmetic, cleaner
 
 class Netprot():
 
@@ -8,11 +9,7 @@ class Netprot():
         if not isinstance(protocols, list) and not any(isinstance(element, str) for element in protocols):
             raise TypeError("Protocols must be a list of strings. i.e --> ['TCP/443', 'UDP/53']")
         else:
-            # lower all elements of protocol. Will later upper.
-            protocols_lower = [protocol.lower().lstrip().rstrip() for protocol in protocols]
-            
-        self.protocols = protocols_lower
-
+            self.protocols = protocols
         # Validate separator data type.
         if separator and not isinstance(separator, str):
             raise TypeError("Separator must be of type string. i.e. --> '/'")
@@ -30,7 +27,7 @@ class Netprot():
     def normalize(self):
         normalized_protocols = list()
  
-        for protocol in self.protocols:
+        for protocol in cleaner(self.protocols):
             # https://regex101.com/r/DyKeqr/1
             result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
             if result:
@@ -57,28 +54,36 @@ class Netprot():
             # catch 'icmp' and 'any'
             else:
                 normalized_protocols.append(protocol)                
- 
-        protocols_upper = [protocol.upper() for protocol in normalized_protocols]
-        protocols_upper.sort()
 
-        return protocols_upper
+        self.protocols = cosmetic(normalized_protocols)
+        return (True, [])
 
 
-    def validate(self):
+    def validate(self, remove=False):
         invalid_services = list()
-        
-        for protocol in self.protocols:
-            if protocol[4] == '/':
-                splitted_protocol = protocol.split('/')
-                if splitted_protocol[0] not in ('tcp', 'udp') and not 0 > int(splitted_protocol[1]) > 65535:
-                    invalid_services.append(protocol)
+        protocols = cleaner(self.protocols)
+        for protocol in protocols:
+            if protocol not in('icmp', 'any'):
+                if protocol[4] == '/':
+                    splitted_protocol = protocol.split('/')
+                    if splitted_protocol[0] not in ('tcp', 'udp') and not 0 > int(splitted_protocol[1]) > 65535:
+                        invalid_services.append(protocol)
+                    else:
+                        continue
                 else:
-                    continue
-            else:
-                invalid_services.append(protocol)
+                    invalid_services.append(protocol)
 
-        if invalid_services:
-            return (False, invalid_services)
+        if invalid_services and not remove:
+            return (False, cosmetic(invalid_services))
+        
+        elif invalid_services and remove:
+            for service in invalid_services:
+                protocols.remove(service)
+            self.protocols = cosmetic(protocols)
+            return (False, cosmetic(invalid_services))
+        
+        else:
+            return(True, list())
 
 
     def remove_duplicates(self):
