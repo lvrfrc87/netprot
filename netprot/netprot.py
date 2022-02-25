@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import re
 from utils.utils import cosmetic, cleaner
-import pdb
+
 
 class Netprot():
 
@@ -18,11 +18,12 @@ class Netprot():
             self.separator = separator
 
     def standardize(self):
-        self.normalize(self)
-        validation_result, failing_validation = self.validate(self) 
+        self.normalize()
+        validation_result, invalid_services = self.validate(remove=True) 
         if not validation_result:
-            return failing_validation
-        self.remove_duplicates(self)
+            return (False, invalid_services)
+        self.remove_duplicates()
+        return (True, invalid_services)
 
 
     def normalize(self):
@@ -73,16 +74,16 @@ class Netprot():
                 else:
                     invalid_services.append(protocol)
         if invalid_services and not remove:
-            return (False, cosmetic(invalid_services))
+            return (True, cosmetic(invalid_services))
         
         elif invalid_services and remove:
             for service in invalid_services:
                 protocols.remove(service)
             self.protocols = cosmetic(protocols)
-            return (False, cosmetic(invalid_services))
+            return (True, cosmetic(invalid_services))
        
         else:
-            return(True, list())
+            return(False, list())
 
 
     def remove_duplicates(self):
@@ -97,7 +98,46 @@ class Netprot():
 
 
     def is_well_known(self):
+        is_well_known = list()
+        
+        for protocol in cleaner(self.protocols):
+            if protocol not in ('icmp', 'any'):
+                port_number = int(protocol.split('/')[-1]) 
+                if port_number <= 1024:
+                    is_well_known.append(True)
+                else:
+                    is_well_known.append(False)
+            else:
+                is_well_known.append(False)
+        
+        if all(is_well_known):
+            return (True, is_well_known)
+        else:
+            return (False, is_well_known)
+
+
+    def is_tcp(self):
+        is_tcp = list()
+        
+        for protocol in cleaner(self.protocols):
+            if protocol not in ('icmp', 'any'):
+                prot = protocol.split('/')[0]
+                if prot == 'tcp':
+                    is_tcp.append(True)
+                else:
+                    is_tcp.append(False)
+            else:
+                is_tcp.append(False)
+        
+        if all(is_tcp):
+            return (True, is_tcp)
+        else:
+            return (False, is_tcp)
+
+
+    def is_udp(self):
         pass
+
 
     def is_safe(self):
         pass
@@ -105,10 +145,6 @@ class Netprot():
     def is_unsafe(self):
         pass
 
-    def is_tcp(self):
-        pass
 
-    def is_udp(self):
-        pass
 
 
