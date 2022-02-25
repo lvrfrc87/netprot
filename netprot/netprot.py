@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import re
 from utils.utils import cosmetic, cleaner
+import pdb
 
 class Netprot():
 
@@ -53,10 +54,9 @@ class Netprot():
                         normalized_protocols.append(protocol)
             # catch 'icmp' and 'any'
             else:
-                normalized_protocols.append(protocol)                
-
+                normalized_protocols.append(protocol)        
         self.protocols = cosmetic(normalized_protocols)
-        return (True, [])
+        return (True, list())
 
 
     def validate(self, remove=False):
@@ -64,7 +64,7 @@ class Netprot():
         protocols = cleaner(self.protocols)
         for protocol in protocols:
             if protocol not in('icmp', 'any'):
-                if protocol[4] == '/':
+                if protocol[3] == '/':
                     splitted_protocol = protocol.split('/')
                     if splitted_protocol[0] not in ('tcp', 'udp') and not 0 > int(splitted_protocol[1]) > 65535:
                         invalid_services.append(protocol)
@@ -72,7 +72,6 @@ class Netprot():
                         continue
                 else:
                     invalid_services.append(protocol)
-
         if invalid_services and not remove:
             return (False, cosmetic(invalid_services))
         
@@ -81,13 +80,20 @@ class Netprot():
                 protocols.remove(service)
             self.protocols = cosmetic(protocols)
             return (False, cosmetic(invalid_services))
-        
+       
         else:
             return(True, list())
 
 
     def remove_duplicates(self):
-        self.protocols[:] = list(set(self.protocols))
+        setted_protocols = set()
+        duplicates = [element for element in self.protocols if element in setted_protocols or (setted_protocols.add(element)) or False]
+        self.protocols = cosmetic(list(setted_protocols))
+        
+        if duplicates:
+            return(True, duplicates)
+        else:
+            return(False, list())
 
 
     def is_well_known(self):

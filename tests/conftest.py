@@ -6,6 +6,8 @@ def mock():
         "TCP-443",
         "UDPC-5353",
         "UDP-53",
+        "UDP=53",
+        "TCP-443",
         "UDP%65535",
         "TCP/65636",
         "TCPUDP$443-HTTPS",
@@ -13,6 +15,6 @@ def mock():
         "ICMP-1223-1224",
         "TCP/443-HTTPS",
         "ICMP",
-        "ANY"
+        "ANY",
         ]
     return mock_data
