@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture
 def mock():
     mock_data = [
@@ -16,5 +17,5 @@ def mock():
         "TCP/443-HTTPS",
         "ICMP",
         "ANY",
-        ]
+    ]
     return mock_data

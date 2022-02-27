@@ -7,4 +7,3 @@ def cosmetic(protocols):
 
 def cleaner(protocols):
     return [protocol.lower().lstrip().rstrip() for protocol in protocols]
-
