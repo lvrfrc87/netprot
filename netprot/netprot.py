@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Netprot: library for network protocols
-normalization and evaluation."""
+"""Netprot: library for network protocols normalization and evaluation."""
 import re
 from utils.utils import cosmetic, cleaner
 
+
 class Netprot:
-    """ Netprot Class implementation."""
+    """Netprot Class implementation."""
+
     def __init__(self, protocols, separator="/"):
         """__init__ method."""
         # Validate protocols and protocols element data type.
-        if not isinstance(protocols, list) and not any(
-            isinstance(element, str) for element in protocols
-        ):
+        if not isinstance(protocols, list) and not any(isinstance(element, str) for element in protocols):
             raise TypeError(
                 """Protocols must be a list of strings.
                 i.e --> ['TCP/443', 'UDP/53']"""
@@ -24,8 +23,7 @@ class Netprot:
         self.separator = separator
 
     def standardize(self):
-        """Standardize list fo protocosl. Run normalize(), validate()
-        and remove_duplicates()."""
+        """Standardize list fo protocosl. Run normalize(), validate() and remove_duplicates()."""
         self.normalize()
         validation_result, invalid_services = self.validate(remove=True)
         if not validation_result:
@@ -75,19 +73,15 @@ class Netprot:
             if protocol not in ("icmp", "any"):
                 if protocol[3] == "/":
                     splitted_protocol = protocol.split("/")
-                    if (
-                        splitted_protocol[0] not in ("tcp", "udp")
-                        and not 0 > int(splitted_protocol[1]) > 65535
-                    ):
+                    if splitted_protocol[0] not in ("tcp", "udp") and not 0 > int(splitted_protocol[1]) > 65535:
                         invalid_services.append(protocol)
-                    else:
-                        continue
-                invalid_services.append(protocol)
+                else:
+                    invalid_services.append(protocol)
 
         if invalid_services and not remove:
             return (True, cosmetic(invalid_services))
 
-        elif invalid_services and remove:
+        if invalid_services and remove:
             for service in invalid_services:
                 protocols.remove(service)
             self.protocols = cosmetic(protocols)
@@ -95,11 +89,10 @@ class Netprot:
         return (False, list())
 
     def remove_duplicates(self):
+        """Remove duplicated elements."""
         setted_protocols = set()
         duplicates = [
-            element
-            for element in self.protocols
-            if element in setted_protocols or (setted_protocols.add(element)) or False
+            element for element in self.protocols if element in setted_protocols or setted_protocols.add(element)
         ]
         self.protocols = cosmetic(list(setted_protocols))
 
@@ -108,6 +101,7 @@ class Netprot:
         return (False, list())
 
     def is_well_known(self):
+        """Evaluate port if lower than 1024."""
         is_well_known = list()
 
         for protocol in cleaner(self.protocols):
@@ -115,14 +109,17 @@ class Netprot:
                 port_number = int(protocol.split("/")[-1])
                 if port_number <= 1024:
                     is_well_known.append(True)
+                else:
+                    is_well_known.append(False)
+            else:
                 is_well_known.append(False)
-            is_well_known.append(False)
 
         if all(is_well_known):
             return (True, is_well_known)
         return (False, is_well_known)
 
     def is_tcp(self):
+        """Evaluate protocol if TCP."""
         is_tcp = list()
 
         for protocol in cleaner(self.protocols):
@@ -140,6 +137,7 @@ class Netprot:
         return (False, is_tcp)
 
     def is_udp(self):
+        """Evaluate protocol if UDP."""
         id_udp = list()
 
         for protocol in cleaner(self.protocols):
@@ -156,7 +154,10 @@ class Netprot:
             return (True, id_udp)
         return (False, id_udp)
 
-    def is_safe(self, safe_list=list()):
+    def is_safe(self, safe_list):
+        """Evaluate port if is safe."""
+        if not safe_list:
+            safe_list = list()
         safe_ports = list()
         for element in self.protocols:
             if element in safe_list:
@@ -166,7 +167,10 @@ class Netprot:
             return (True, safe_ports)
         return (False, safe_ports)
 
-    def is_unsafe(self, unsafe_list=list()):
+    def is_unsafe(self, unsafe_list):
+        """Evaluate port if is not safe."""
+        if not unsafe_list:
+            unsafe_list = list()
         unsafe_ports = list()
 
         for element in self.protocols:
