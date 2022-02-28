@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Netprot: library for network protocols normalization and evaluation."""
 import re
-from utils.utils import cosmetic, cleaner
 
 
 class Netprot:
@@ -22,6 +21,19 @@ class Netprot:
 
         self.separator = separator
 
+    @staticmethod
+    def _cosmetic(egress_list):
+        """Standardize returned list."""
+        standardize_protocols = [protocol.upper() for protocol in egress_list]
+        standardize_protocols.sort()
+
+        return standardize_protocols
+
+    @staticmethod
+    def _cleaner(inggress_list):
+        """Standardize argument list."""
+        return [protocol.lower().lstrip().rstrip() for protocol in inggress_list]
+
     def standardize(self):
         """Standardize list fo protocosl. Run normalize(), validate() and remove_duplicates()."""
         self.normalize()
@@ -35,7 +47,7 @@ class Netprot:
         """Normalize list of strings containing protocol and port."""
         normalized_protocols = list()
 
-        for protocol in cleaner(self.protocols):
+        for protocol in self._cleaner(self.protocols):
             # https://regex101.com/r/DyKeqr/1
             result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
             if result:
@@ -62,13 +74,13 @@ class Netprot:
             # catch 'icmp' and 'any'
             else:
                 normalized_protocols.append(protocol)
-        self.protocols = cosmetic(normalized_protocols)
+        self.protocols = self._cosmetic(normalized_protocols)
         return (True, list())
 
     def validate(self, remove=False):
         """Validate list of normalized protocols and ports."""
         invalid_services = list()
-        protocols = cleaner(self.protocols)
+        protocols = self._cleaner(self.protocols)
         for protocol in protocols:
             if protocol not in ("icmp", "any"):
                 if protocol[3] == "/":
@@ -79,13 +91,13 @@ class Netprot:
                     invalid_services.append(protocol)
 
         if invalid_services and not remove:
-            return (True, cosmetic(invalid_services))
+            return (True, self._cosmetic(invalid_services))
 
         if invalid_services and remove:
             for service in invalid_services:
                 protocols.remove(service)
-            self.protocols = cosmetic(protocols)
-            return (True, cosmetic(invalid_services))
+            self.protocols = self._cosmetic(protocols)
+            return (True, self._cosmetic(invalid_services))
         return (False, list())
 
     def remove_duplicates(self):
@@ -94,7 +106,7 @@ class Netprot:
         duplicates = [
             element for element in self.protocols if element in setted_protocols or setted_protocols.add(element)
         ]
-        self.protocols = cosmetic(list(setted_protocols))
+        self.protocols = self._cosmetic(list(setted_protocols))
 
         if duplicates:
             return (True, duplicates)
@@ -104,7 +116,7 @@ class Netprot:
         """Evaluate port if lower than 1024."""
         is_well_known = list()
 
-        for protocol in cleaner(self.protocols):
+        for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
                 port_number = int(protocol.split("/")[-1])
                 if port_number <= 1024:
@@ -122,7 +134,7 @@ class Netprot:
         """Evaluate protocol if TCP."""
         is_tcp = list()
 
-        for protocol in cleaner(self.protocols):
+        for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
                 prot = protocol.split("/")[0]
                 if prot == "tcp":
@@ -140,7 +152,7 @@ class Netprot:
         """Evaluate protocol if UDP."""
         id_udp = list()
 
-        for protocol in cleaner(self.protocols):
+        for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
                 prot = protocol.split("/")[0]
                 if prot == "udp":

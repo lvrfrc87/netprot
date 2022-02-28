@@ -123,7 +123,6 @@ def pylint(context, path=".", local=INVOKE_LOCAL):
     run_cmd(context, exec_cmd, local)
 
 
-
 @task(help={"local": "Run locally or within the Docker container"})
 def pydocstyle(context, path=".", local=INVOKE_LOCAL):
     """Run pydocstyle to validate docstring formatting adheres to NTC defined standards."""

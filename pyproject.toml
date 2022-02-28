@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "netpro"
+name = "netprot"
 version = "0.1.0"
-description = "pyhton library for network protocol validation and evaluation"
+description = "A system-indipendent network protocol manipulation and evaluation library."
 authors = ["Federico Olivieri <lvrfrc87@gmail.com>"]
 
 [tool.poetry.dependencies]
@@ -53,7 +53,6 @@ disable = """,
     bad-continuation,
     E5110,
     too-many-nested-blocks,
-    import-error
     """
 
 [tool.pylint.miscellaneous]
