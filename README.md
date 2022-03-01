@@ -1,6 +1,5 @@
 # netprot
-A system-indipendent network protocol manipulation and evaluation library. 
-`netprod` wants to be a library capable standardize and evaluate list of strings rappresenting Network Protocols. The idea is to provide a tool similar to `netaddr` that can help to enhance and simplify code logic wherever is required.
+A system-independent network protocol manipulation and evaluation library. `netprod` wants to be a library capable of standardizing and evaluating a list of strings representing Network Protocols. The idea is to provide a tool similar to netaddr that can help to enhance and simplify code logic wherever is required.
 
 ### Installation
 
@@ -12,7 +11,7 @@ Package available [here](https://pypi.org/project/netprot/)
 
 ### HOW TO
 
-First thing, we need to initialize an instance of `Netprod` class, passing as arguments a list of string - where each string should rappresent a network protocol and corresponding port. `separator` argument is also possible to pass it as kwarg and will be used to standardize our strings. By default, `separator` is equal to `/` 
+First thing, we need to initialize an instance of `Netprod` class, passing as arguments a list of strings - where each string should represent a network protocol and corresponding port. A `separator` argument is also possible to pass as kwarg and will be used to standardize our strings. By default, separator is equal to `/`
 
 ```python
 >>> from netprot.netprot import Netprot 
@@ -32,14 +31,14 @@ As we can see, we have:
 - Strings using the same `separator`.
 - Trailing words such as `https` is removed as not needed
 - Protocols defined as `tcp/1024-1026` are unpacked for each port in range defined
-- Unlegal protocosl such as `TCPP/80` are removed
+- Illegal protocols such as TCPP/80 are removed
 - Duplicates are also removed
 - All strings are upper cases
 - List is sorted
-- `ICMP` and `ANY` are recognized as legal tring and paased through
+- `ICMP` and `ANY` are recognized as legal tring and passed through
 
 
-`Netprod` not only standardize data, but also evaluate them. Let's have a look to the other methods 
+`Netprod` not only standardizes data, but also evaluates them. Let's have a look to the other methods
 
 :warning:
 List of protocols must be standardized first.
@@ -67,7 +66,7 @@ What about if we want to find those are `TCP`...
 ```
 
 Great! What if we want figure out if our port and protocols are safe or not?
-Let's define a list of safe - or unsafe - ports and protocols and paased them to `is_safe` or `is_unsafe` method.
+Let's define a list of safe - or unsafe - ports and protocols and passed them to `is_safe` or `is_unsafe` method.
 
 ```python
 >>> my_safe_applications = ['TCP/443', 'UDP/53']
