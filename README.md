@@ -50,7 +50,7 @@ Let's check if the ports are part of well known range of ports (0 to 1024)
 (False, [False, False, True, False, False, True, True])
 ```
 
-As we can see, some ports are failing to be lower than 1024, hence we return `False` plus a list of bools for each ports.
+As we can see, some ports are failing to be lower than 1024, hence we return `False` plus a list of bools for each port.
 
 What about if we want to find those are `TCP`...
 
@@ -66,7 +66,7 @@ What about if we want to find those are `TCP`...
 ```
 
 Great! What if we want figure out if our port and protocols are safe or not?
-Let's define a list of safe - or unsafe - ports and protocols and passed them to `is_safe` or `is_unsafe` method.
+Let's define a list of safe - or unsafe - ports and protocols and pass them to the `is_safe` or `is_unsafe` method.
 
 ```python
 >>> my_safe_applications = ['TCP/443', 'UDP/53']
