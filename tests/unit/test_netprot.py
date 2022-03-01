@@ -21,6 +21,7 @@ expected_output = (
         "TCP/443",
         "TCP/443",
         "TCP/443",
+        "TCP/443",
         "TCP/65636",
         "TCPUDP/443",
         "UDP/53",
@@ -49,6 +50,7 @@ expected_output = (
         "TCP/1024",
         "TCP/1025",
         "TCP/1026",
+        "TCP/443",
         "TCP/443",
         "TCP/443",
         "TCP/443",
@@ -82,6 +84,7 @@ expected_output = (
         "TCP/443",
         "TCP/443",
         "TCP/443",
+        "TCP/443",
         "TCP/65636",
         "UDP/53",
         "UDP/53",
@@ -100,7 +103,7 @@ def test_evaluate_valuator_true(expected_output, mock):
 
 expected_output = (
     True,
-    ["TCP/443", "TCP/443", "UDP/53"],
+    ["TCP/443", "TCP/443", "TCP/443", "UDP/53"],
     [
         "ANY",
         "ICMP",
@@ -116,7 +119,7 @@ expected_output = (
 
 
 @pytest.mark.parametrize("expected_output", [expected_output])
-def test_evaluate_valuator_true(expected_output, mock):
+def test_evaluate_duplicate(expected_output, mock):
     test = Netprot(mock)
     test.normalize()
     test.validate(remove=True)
@@ -266,7 +269,7 @@ expected_output = (
 
 
 @pytest.mark.parametrize("expected_output", [expected_output])
-def test_evaluate_is_safe(expected_output, mock):
+def test_evaluate_is_unsafe(expected_output, mock):
     test = Netprot(mock)
     test.standardize()
     assert test.is_unsafe(unsafe_list=["TCP/53"]) == expected_output[0:2]

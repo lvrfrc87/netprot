@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Netprot: library for network protocols normalization and evaluation."""
 import re
+from collections import Counter
 
 
 class Netprot:
@@ -34,6 +35,11 @@ class Netprot:
         """Standardize argument list."""
         return [protocol.lower().lstrip().rstrip() for protocol in inggress_list]
 
+    @staticmethod
+    def _find_duplicates(string):
+        elements = Counter(string)
+        return [key for key, value in elements.items() if value > 1]
+
     def standardize(self):
         """Standardize list fo protocosl. Run normalize(), validate() and remove_duplicates()."""
         self.normalize()
@@ -46,7 +52,6 @@ class Netprot:
     def normalize(self):
         """Normalize list of strings containing protocol and port."""
         normalized_protocols = list()
-
         for protocol in self._cleaner(self.protocols):
             # https://regex101.com/r/DyKeqr/1
             result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
@@ -67,8 +72,12 @@ class Netprot:
                             continue
                     # Normalize TCP/443-HTTPS --> TCP/443
                     elif result.group(4) and result.group(6):
-                        index = protocol.index(result.group(4))
-                        normalized_protocols.append(protocol[:index])
+                        # Case where self.separator is used twice TCP/443/HTTPS
+                        if self.separator in self._find_duplicates(protocol):
+                            normalized_protocols.append(f"{self.separator}".join(protocol.split(self.separator)[0:2]))
+                        else:
+                            index = protocol.index(result.group(4))
+                            normalized_protocols.append(protocol[:index])
                     else:
                         normalized_protocols.append(protocol)
             # catch 'icmp' and 'any'
@@ -83,8 +92,8 @@ class Netprot:
         protocols = self._cleaner(self.protocols)
         for protocol in protocols:
             if protocol not in ("icmp", "any"):
-                if protocol[3] == "/":
-                    splitted_protocol = protocol.split("/")
+                if protocol[3] == self.separator:
+                    splitted_protocol = protocol.split(self.separator)
                     if splitted_protocol[0] not in ("tcp", "udp") and not 0 > int(splitted_protocol[1]) > 65535:
                         invalid_services.append(protocol)
                 else:
@@ -118,7 +127,7 @@ class Netprot:
 
         for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
-                port_number = int(protocol.split("/")[-1])
+                port_number = int(protocol.split(self.separator)[-1])
                 if port_number <= 1024:
                     is_well_known.append(True)
                 else:
@@ -136,7 +145,7 @@ class Netprot:
 
         for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
-                prot = protocol.split("/")[0]
+                prot = protocol.split(self.separator)[0]
                 if prot == "tcp":
                     is_tcp.append(True)
                 else:
@@ -154,7 +163,7 @@ class Netprot:
 
         for protocol in self._cleaner(self.protocols):
             if protocol not in ("icmp", "any"):
-                prot = protocol.split("/")[0]
+                prot = protocol.split(self.separator)[0]
                 if prot == "udp":
                     id_udp.append(True)
                 else:
