@@ -1,0 +1,80 @@
+[tool.poetry]
+name = "netprot"
+version = "0.1.0"
+description = "A system-indipendent network protocol manipulation and evaluation library."
+authors = ["Federico Olivieri <lvrfrc87@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+requests_mock = "*"
+black = "*"
+pylint = "*"
+pydocstyle = "*"
+bandit = "*"
+invoke = "*"
+toml = "*"
+flake8 = "*"
+
+
+[tool.black]
+line-length = 120
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | settings.py
+            
+)
+'''
+
+[tool.pylint.basic]
+no-docstring-rgx="^(_|test_|Meta$)"
+
+[tool.pylint.messages_control]
+disable = """,
+    use-dict-literal,
+    use-list-literal,
+    line-too-long,
+    bad-continuation,
+    E5110,
+    too-many-nested-blocks,
+    """
+
+[tool.pylint.miscellaneous]
+notes = """,
+    FIXME,
+    XXX,
+    """
+
+
+[tool.pydocstyle]
+convention = "google"
+inherit = false
+match = "(?!__init__).*\\.py"
+match-dir = "(?!tests|migrations|development)[^\\.].*"
+add_ignore = "D212"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+addopts = "-vv --doctest-modules"
