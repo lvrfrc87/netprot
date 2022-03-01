@@ -42,84 +42,83 @@ class Netprot:
 
     def standardize(self):
         """Standardize list fo protocosl. Run normalize(), validate() and remove_duplicates()."""
-        self.normalize()
-        validation_result, invalid_services = self.validate(remove=True)
-        if not validation_result:
-            return (False, invalid_services)
-        self.remove_duplicates()
-        return (True, invalid_services)
 
-    def normalize(self):
-        """Normalize list of strings containing protocol and port."""
-        normalized_protocols = list()
-        for protocol in self._cleaner(self.protocols):
-            # https://regex101.com/r/DyKeqr/1
-            result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
-            if result:
-                # replace whatever separator with self.separator
-                protocol = protocol.replace(result.group(2), self.separator, 1)
+        def normalize():
+            """Normalize list of strings containing protocol and port."""
+            normalized_protocols = list()
+            for protocol in self._cleaner(self.protocols):
+                # https://regex101.com/r/DyKeqr/1
+                result = re.search(r"\b([a-z]+)(\W|_)(\d+)(.)?(\d+)?(\w+)?", protocol)
+                if result:
+                    # replace whatever separator with self.separator
+                    protocol = protocol.replace(result.group(2), self.separator, 1)
 
-                splitted_protocol = protocol.split(self.separator)
-                if len(splitted_protocol) > 1:
-                    # Expand TCP/1024-1026 --> TCP/1024, TCP/1025, TCP/1026
-                    if result.group(4) and result.group(5):
-                        try:
-                            start = int(result.group(3))
-                            end = int(result.group(5)) + 1
-                            for port in range(start, end):
-                                normalized_protocols.append(f"{protocol[0:3]}/{port}")
-                        except ValueError:
-                            continue
-                    # Normalize TCP/443-HTTPS --> TCP/443
-                    elif result.group(4) and result.group(6):
-                        # Case where self.separator is used twice TCP/443/HTTPS
-                        if self.separator in self._find_duplicates(protocol):
-                            normalized_protocols.append(f"{self.separator}".join(protocol.split(self.separator)[0:2]))
-                        else:
-                            index = protocol.index(result.group(4))
-                            normalized_protocols.append(protocol[:index])
-                    else:
-                        normalized_protocols.append(protocol)
-            # catch 'icmp' and 'any'
-            else:
-                normalized_protocols.append(protocol)
-        self.protocols = self._cosmetic(normalized_protocols)
-        return (True, list())
-
-    def validate(self, remove=False):
-        """Validate list of normalized protocols and ports."""
-        invalid_services = list()
-        protocols = self._cleaner(self.protocols)
-        for protocol in protocols:
-            if protocol not in ("icmp", "any"):
-                if protocol[3] == self.separator:
                     splitted_protocol = protocol.split(self.separator)
-                    if splitted_protocol[0] not in ("tcp", "udp") and not 0 > int(splitted_protocol[1]) > 65535:
-                        invalid_services.append(protocol)
+                    if len(splitted_protocol) > 1:
+                        # Expand TCP/1024-1026 --> TCP/1024, TCP/1025, TCP/1026
+                        if result.group(4) and result.group(5):
+                            try:
+                                start = int(result.group(3))
+                                end = int(result.group(5)) + 1
+                                for port in range(start, end):
+                                    normalized_protocols.append(f"{protocol[0:3]}/{port}")
+                            except ValueError:
+                                continue
+                        # Normalize TCP/443-HTTPS --> TCP/443
+                        elif result.group(4) and result.group(6):
+                            # Case where self.separator is used twice TCP/443/HTTPS
+                            if self.separator in self._find_duplicates(protocol):
+                                normalized_protocols.append(
+                                    f"{self.separator}".join(protocol.split(self.separator)[0:2])
+                                )
+                            else:
+                                index = protocol.index(result.group(4))
+                                normalized_protocols.append(protocol[:index])
+                        else:
+                            normalized_protocols.append(protocol)
+                # catch 'icmp' and 'any'
                 else:
-                    invalid_services.append(protocol)
+                    normalized_protocols.append(protocol)
+            self.protocols = self._cosmetic(normalized_protocols)
+            return True
 
-        if invalid_services and not remove:
-            return (True, self._cosmetic(invalid_services))
+        def validate():
+            """Validate list of normalized protocols and ports."""
+            invalid_services = list()
+            protocols = self._cleaner(self.protocols)
+            for protocol in protocols:
+                if protocol not in ("icmp", "any"):
+                    if protocol[3] == self.separator:
+                        splitted_protocol = protocol.split(self.separator)
+                        if splitted_protocol[0] not in ("tcp", "udp") and not 0 > int(splitted_protocol[1]) > 65535:
+                            invalid_services.append(protocol)
+                    else:
+                        invalid_services.append(protocol)
 
-        if invalid_services and remove:
-            for service in invalid_services:
-                protocols.remove(service)
+            if invalid_services:
+                for service in invalid_services:
+                    protocols.remove(service)
+                self.protocols = self._cosmetic(protocols)
+                return self._cosmetic(invalid_services)
+
             self.protocols = self._cosmetic(protocols)
-            return (True, self._cosmetic(invalid_services))
-        return (False, list())
+            return list()
 
-    def remove_duplicates(self):
-        """Remove duplicated elements."""
-        setted_protocols = set()
-        duplicates = [
-            element for element in self.protocols if element in setted_protocols or setted_protocols.add(element)
-        ]
-        self.protocols = self._cosmetic(list(setted_protocols))
+        def remove_duplicates():
+            """Remove duplicated elements."""
+            setted_protocols = set()
+            duplicates = [
+                element for element in self.protocols if element in setted_protocols or setted_protocols.add(element)
+            ]
 
-        if duplicates:
-            return (True, duplicates)
-        return (False, list())
+            self.protocols = self._cosmetic(list(setted_protocols))
+
+            if duplicates:
+                return duplicates
+            return list()
+
+        if normalize():
+            return (validate(), remove_duplicates(), self.protocols)
 
     def is_well_known(self):
         """Evaluate port if lower than 1024."""
@@ -177,27 +176,22 @@ class Netprot:
 
     def is_safe(self, safe_list):
         """Evaluate port if is safe."""
-        if not safe_list:
-            safe_list = list()
-        safe_ports = list()
+        result = list()
         for element in self.protocols:
-            if element in safe_list:
-                safe_ports.append(element)
+            if element not in safe_list:
+                result.append(False)
+            else:
+                result.append(True)
 
-        if safe_ports:
-            return (True, safe_ports)
-        return (False, safe_ports)
+        return result
 
     def is_unsafe(self, unsafe_list):
         """Evaluate port if is not safe."""
-        if not unsafe_list:
-            unsafe_list = list()
-        unsafe_ports = list()
-
+        result = list()
         for element in self.protocols:
             if element in unsafe_list:
-                unsafe_ports.append(element)
+                result.append(True)
+            else:
+                result.append(False)
 
-        if unsafe_ports:
-            return (True, unsafe_ports)
-        return (False, unsafe_ports)
+        return result
