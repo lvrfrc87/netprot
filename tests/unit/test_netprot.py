@@ -16,6 +16,7 @@ expected_output = (
         "TCP/1025",
         "TCP/1026",
         "TCP/443",
+        "TCP/6380",
         "TCP/65636",
         "UDP/53",
         "UDP/65535",
@@ -31,7 +32,7 @@ def test_evaluate_standardize(expected_output, mock):
 
 expected_output = (
     False,
-    [False, False, True, False, False, True, False, True, False],
+    [False, False, True, False, False, True, False, False, True, False],
     [
         "ANY",
         "ICMP",
@@ -39,6 +40,7 @@ expected_output = (
         "TCP/1025",
         "TCP/1026",
         "TCP/443",
+        "TCP/6380",
         "TCP/65636",
         "UDP/53",
         "UDP/65535",
@@ -56,7 +58,7 @@ def test_evaluate_is_well_known(expected_output, mock):
 
 expected_output = (
     False,
-    [False, False, True, True, True, True, True, False, False],
+    [False, False, True, True, True, True, True, True, False, False],
     [
         "ANY",
         "ICMP",
@@ -64,6 +66,7 @@ expected_output = (
         "TCP/1025",
         "TCP/1026",
         "TCP/443",
+        "TCP/6380",
         "TCP/65636",
         "UDP/53",
         "UDP/65535",
@@ -81,7 +84,7 @@ def test_evaluate_is_tcp(expected_output, mock):
 
 expected_output = (
     False,
-    [False, False, False, False, False, False, False, True, True],
+    [False, False, False, False, False, False, False, False, True, True],
     [
         "ANY",
         "ICMP",
@@ -89,6 +92,7 @@ expected_output = (
         "TCP/1025",
         "TCP/1026",
         "TCP/443",
+        "TCP/6380",
         "TCP/65636",
         "UDP/53",
         "UDP/65535",
@@ -104,7 +108,7 @@ def test_evaluate_is_udp(expected_output, mock):
     assert test.protocols == expected_output[-1]
 
 
-expected_output = [False, False, False, False, False, True, False, False, False]
+expected_output = [False, False, False, False, False, True, False, False, False, False]
 
 
 @pytest.mark.parametrize("expected_output", [expected_output])
@@ -114,7 +118,7 @@ def test_evaluate_is_safe(expected_output, mock):
     assert test.is_safe(safe_list=["TCP/443", "TCP/22"]) == expected_output
 
 
-expected_output = [False, False, False, False, False, False, False, False, False]
+expected_output = [False, False, False, False, False, False, False, False, False, False]
 
 
 @pytest.mark.parametrize("expected_output", [expected_output])

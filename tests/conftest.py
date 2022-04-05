@@ -19,6 +19,7 @@ def mock():
             "icmp",
             "ANY",
             "TCP-443/HTTPS",
+            "TCP/6380."
         ],
         ["ICMP", "ANY", "TCP/UDP/53-DNS"],
     )

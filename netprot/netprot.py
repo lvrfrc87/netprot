@@ -84,6 +84,9 @@ class Netprot:
                                 else:
                                     index = protocol.index(result.group(4))
                                     normalized_protocols.append(protocol[:index])
+                            # Case where protocols ends with dot i.e TCP/6380.
+                            elif any([result.group(4) and not result.group(5), result.group(4) and not result.group(6)]) :
+                                normalized_protocols.append(protocol[:-1])
                             else:
                                 normalized_protocols.append(protocol)
                     # add those that are not matching regex.

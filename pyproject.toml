@@ -1,8 +1,26 @@
 [tool.poetry]
 name = "netprot"
-version = "0.1.1"
+version = "0.1.2"
 description = "A system-indipendent network protocol manipulation and evaluation library."
 authors = ["Federico Olivieri <lvrfrc87@gmail.com>"]
+license = "GPL-3.0-or-later"
+homepage = "https://github.com/lvrfrc87/netprot"
+repository = "https://github.com/lvrfrc87/netprot"
+readme = "README.md"
+keywords = ["networking", "automation", "network"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+include = [
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
