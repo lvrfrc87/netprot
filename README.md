@@ -15,8 +15,8 @@ First thing, we need to initialize an instance of `Netprod` class, passing as ar
 
 ```python
 >>> from netprot.netprot import Netprot 
->>> my_list = ['tcp-443-https', 'UDP/53', 'ICMP', 'any', 'tcp/1024-1026', 'TCPP-80', 'tcp/443']
->>> my_protocols = Netprot(my_list, separator='/')
+>>> my_list = ['tcp-443-https', 'UDP/53', 'tcp/1024-1026', 'TCPP-80', 'tcp/443']
+>>> my_protocols = Netprot(my_list, exceptions=['ICMP', 'any'], separator='/')
 ```
 
 Once the instance of the class is created, we can call `standardize` method which will return a tuple containing pontential unlegal protocols and ports, duplicates - if any, and a standardize list of protocols and port.
@@ -35,7 +35,7 @@ As we can see, we have:
 - Duplicates are also removed
 - All strings are upper cases
 - List is sorted
-- `ICMP` and `ANY` are recognized as legal tring and passed through
+- `ICMP` and `ANY` are recognized as legal - because defined under `exceptions` argument - and passed through
 
 
 `Netprod` not only standardizes data, but also evaluates them. Let's have a look to the other methods
