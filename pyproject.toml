@@ -53,6 +53,7 @@ disable = """,
     bad-continuation,
     E5110,
     too-many-nested-blocks,
+    too-many-branches,
     """
 
 [tool.pylint.miscellaneous]

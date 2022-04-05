@@ -21,9 +21,11 @@ expected_output = (
         "UDP/65535",
     ],
 )
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_standardize(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     assert test.standardize() == expected_output[0:3]
 
 
@@ -42,9 +44,11 @@ expected_output = (
         "UDP/65535",
     ],
 )
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_is_well_known(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     test.standardize()
     assert test.is_well_known() == expected_output[0:2]
     assert test.protocols == expected_output[-1]
@@ -65,9 +69,11 @@ expected_output = (
         "UDP/65535",
     ],
 )
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_is_tcp(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     test.standardize()
     assert test.is_tcp() == expected_output[0:2]
     assert test.protocols == expected_output[-1]
@@ -88,29 +94,31 @@ expected_output = (
         "UDP/65535",
     ],
 )
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_is_udp(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     test.standardize()
     assert test.is_udp() == expected_output[0:2]
     assert test.protocols == expected_output[-1]
 
 
-expected_output = (
-    [False, False, False, False, False, True, False, False, False]
-)
+expected_output = [False, False, False, False, False, True, False, False, False]
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_is_safe(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     test.standardize()
     assert test.is_safe(safe_list=["TCP/443", "TCP/22"]) == expected_output
 
 
-expected_output = (
-    [False, False, False, False, False, False, False, False, False]
-)
+expected_output = [False, False, False, False, False, False, False, False, False]
+
+
 @pytest.mark.parametrize("expected_output", [expected_output])
 def test_evaluate_is_unsafe(expected_output, mock):
-    test = Netprot(mock)
+    test = Netprot(protocols=mock[0], exceptions=mock[1], separator="/")
     test.standardize()
     assert test.is_unsafe(unsafe_list=["TCP/53"]) == expected_output
