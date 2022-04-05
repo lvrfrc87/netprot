@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "netprot"
-version = "0.1.0"
+version = "0.1.1"
 description = "A system-indipendent network protocol manipulation and evaluation library."
 authors = ["Federico Olivieri <lvrfrc87@gmail.com>"]
 
